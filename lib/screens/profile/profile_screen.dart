@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/user_provider.dart';
+import '../../providers/language_provider.dart';
+import '../../l10n/app_localizations.dart';
 import '../../utils/helpers.dart';
 import '../../config/theme.dart';
 import '../auth/login_screen.dart';
@@ -74,11 +76,11 @@ class ProfileScreen extends StatelessWidget {
           sliver: SliverList(
             delegate: SliverChildListDelegate([
               // Account Section
-              _buildSectionHeader(context, 'Account'),
+              _buildSectionHeader(context, AppLocalizations.of(context).translate('account_section')),
               _buildMenuItem(
                 context,
                 icon: Icons.edit,
-                title: 'Edit Profile',
+                title: AppLocalizations.of(context).editProfile,
                 onTap: () {
                   Helpers.showSnackBar(context, 'Coming soon!');
                 },
@@ -86,7 +88,7 @@ class ProfileScreen extends StatelessWidget {
               _buildMenuItem(
                 context,
                 icon: Icons.location_on,
-                title: 'Manage Addresses',
+                title: AppLocalizations.of(context).translate('manage_addresses'),
                 onTap: () {
                   Helpers.showSnackBar(context, 'Coming soon!');
                 },
@@ -94,7 +96,7 @@ class ProfileScreen extends StatelessWidget {
               _buildMenuItem(
                 context,
                 icon: Icons.favorite,
-                title: 'Wishlist',
+                title: AppLocalizations.of(context).translate('wishlist'),
                 onTap: () {
                   Helpers.showSnackBar(context, 'Coming soon!');
                 },
@@ -102,13 +104,13 @@ class ProfileScreen extends StatelessWidget {
               const SizedBox(height: 24),
 
               // Preferences Section
-              _buildSectionHeader(context, 'Preferences'),
+              _buildSectionHeader(context, AppLocalizations.of(context).translate('preferences')),
               Consumer<UserProvider>(
                 builder: (context, userProvider, child) {
                   return _buildSwitchMenuItem(
                     context,
                     icon: Icons.dark_mode,
-                    title: 'Dark Mode',
+                    title: AppLocalizations.of(context).darkMode,
                     value: userProvider.isDarkMode,
                     onChanged: (value) {
                       userProvider.toggleTheme();
@@ -119,28 +121,45 @@ class ProfileScreen extends StatelessWidget {
               _buildMenuItem(
                 context,
                 icon: Icons.notifications,
-                title: 'Notifications',
+                title: AppLocalizations.of(context).notifications,
                 onTap: () {
                   Helpers.showSnackBar(context, 'Coming soon!');
                 },
               ),
-              _buildMenuItem(
-                context,
-                icon: Icons.language,
-                title: 'Language',
-                trailing: const Text('English'),
-                onTap: () {
-                  Helpers.showSnackBar(context, 'Coming soon!');
+              Consumer<LanguageProvider>(
+                builder: (context, languageProvider, child) {
+                  return _buildMenuItem(
+                    context,
+                    icon: Icons.language,
+                    title: AppLocalizations.of(context).language,
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          languageProvider.languageName,
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        const Icon(Icons.chevron_right),
+                      ],
+                    ),
+                    onTap: () {
+                      _showLanguageDialog(context, languageProvider);
+                    },
+                  );
                 },
               ),
               const SizedBox(height: 24),
 
               // Support Section
-              _buildSectionHeader(context, 'Support'),
+              _buildSectionHeader(context, AppLocalizations.of(context).translate('support')),
               _buildMenuItem(
                 context,
                 icon: Icons.help,
-                title: 'Help & Support',
+                title: AppLocalizations.of(context).translate('help_support'),
                 onTap: () {
                   Helpers.showSnackBar(context, 'Coming soon!');
                 },
@@ -148,7 +167,7 @@ class ProfileScreen extends StatelessWidget {
               _buildMenuItem(
                 context,
                 icon: Icons.privacy_tip,
-                title: 'Privacy Policy',
+                title: AppLocalizations.of(context).translate('privacy_policy'),
                 onTap: () {
                   Helpers.showSnackBar(context, 'Coming soon!');
                 },
@@ -156,7 +175,7 @@ class ProfileScreen extends StatelessWidget {
               _buildMenuItem(
                 context,
                 icon: Icons.description,
-                title: 'Terms & Conditions',
+                title: AppLocalizations.of(context).translate('terms_conditions'),
                 onTap: () {
                   Helpers.showSnackBar(context, 'Coming soon!');
                 },
@@ -164,7 +183,7 @@ class ProfileScreen extends StatelessWidget {
               _buildMenuItem(
                 context,
                 icon: Icons.info,
-                title: 'About',
+                title: AppLocalizations.of(context).translate('about'),
                 onTap: () {
                   Helpers.showSnackBar(context, 'FurnitureHub v1.0.0');
                 },
@@ -178,8 +197,8 @@ class ProfileScreen extends StatelessWidget {
                     color: Colors.red.withOpacity(0.1),
                     child: ListTile(
                       leading: const Icon(Icons.logout, color: Colors.red),
-                      title: const Text(
-                        'Logout',
+                      title: Text(
+                        AppLocalizations.of(context).logout,
                         style: TextStyle(
                           color: Colors.red,
                           fontWeight: FontWeight.bold,
@@ -189,12 +208,12 @@ class ProfileScreen extends StatelessWidget {
                         showDialog(
                           context: context,
                           builder: (context) => AlertDialog(
-                            title: const Text('Logout'),
-                            content: const Text('Are you sure you want to logout?'),
+                            title: Text(AppLocalizations.of(context).logout),
+                            content: Text(AppLocalizations.of(context).translate('logout_confirmation')),
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(context),
-                                child: const Text('Cancel'),
+                                child: Text(AppLocalizations.of(context).cancel),
                               ),
                               TextButton(
                                 onPressed: () async {
@@ -275,6 +294,62 @@ class ProfileScreen extends StatelessWidget {
           value: value,
           onChanged: onChanged,
         ),
+      ),
+    );
+  }
+
+  void _showLanguageDialog(BuildContext context, LanguageProvider languageProvider) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Select Language'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            RadioListTile<String>(
+              title: const Row(
+                children: [
+                  Text('🇬🇧'),
+                  SizedBox(width: 12),
+                  Text('English'),
+                ],
+              ),
+              value: 'en',
+              groupValue: languageProvider.locale.languageCode,
+              onChanged: (value) {
+                if (value != null) {
+                  languageProvider.changeLanguage(value);
+                  Navigator.pop(context);
+                  Helpers.showSnackBar(context, 'Language changed to English');
+                }
+              },
+            ),
+            RadioListTile<String>(
+              title: const Row(
+                children: [
+                  Text('🇮🇳'),
+                  SizedBox(width: 12),
+                  Text('हिंदी (Hindi)'),
+                ],
+              ),
+              value: 'hi',
+              groupValue: languageProvider.locale.languageCode,
+              onChanged: (value) {
+                if (value != null) {
+                  languageProvider.changeLanguage(value);
+                  Navigator.pop(context);
+                  Helpers.showSnackBar(context, 'भाषा हिंदी में बदल गई');
+                }
+              },
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+        ],
       ),
     );
   }

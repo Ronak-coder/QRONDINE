@@ -6,6 +6,8 @@ import 'package:badges/badges.dart' as badges;
 import '../../providers/product_provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/user_provider.dart';
+import '../../providers/notification_provider.dart';
+import '../../l10n/app_localizations.dart';
 import '../../widgets/product/product_card.dart';
 import '../../widgets/common/category_card.dart';
 import '../../widgets/common/loading_shimmer.dart';
@@ -17,6 +19,7 @@ import '../product/product_detail_screen.dart';
 import '../cart/cart_screen.dart';
 import '../order/order_history_screen.dart';
 import '../profile/profile_screen.dart';
+import '../notifications/notifications_screen.dart';
 
 
 class HomeScreen extends StatefulWidget {
@@ -86,6 +89,33 @@ class _HomeScreenState extends State<HomeScreen> {
             snap: true,
             title: const Text(AppConstants.appName),
             actions: [
+              // Notification Bell
+              Consumer<NotificationProvider>(
+                builder: (context, notificationProvider, child) {
+                  return badges.Badge(
+                    badgeContent: Text(
+                      '${notificationProvider.unreadCount}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                      ),
+                    ),
+                    showBadge: notificationProvider.hasUnreadNotifications,
+                    child: IconButton(
+                      icon: const Icon(Icons.notifications_outlined),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const NotificationsScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
+              // Theme Toggle
               Consumer<UserProvider>(
                 builder: (context, userProvider, child) {
                   return IconButton(
@@ -100,6 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 },
               ),
+              // Cart Icon
               Consumer<CartProvider>(
                 builder: (context, cart, child) {
                   return badges.Badge(
@@ -138,7 +169,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: TextField(
                     controller: _searchController,
                     decoration: InputDecoration(
-                      hintText: 'Search furniture...',
+                      hintText: AppLocalizations.of(context).searchProducts,
                       prefixIcon: const Icon(Icons.search),
                       suffixIcon: _searchController.text.isNotEmpty
                           ? IconButton(
@@ -199,8 +230,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'Special Offer!',
+                              Text(
+                                AppLocalizations.of(context).specialOffers,
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 16,
@@ -209,7 +240,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Get up to 30% OFF on furniture',
+                                AppLocalizations.of(context).translate('offer_30_percent'),
                                 style: TextStyle(
                                   color: Colors.white.withOpacity(0.9),
                                   fontSize: 13,
@@ -292,7 +323,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Categories',
+                        AppLocalizations.of(context).categories,
                         style: Theme.of(context).textTheme.headlineMedium,
                       ),
                       TextButton(
@@ -301,7 +332,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             _selectedIndex = 1;
                           });
                         },
-                        child: const Text('See All'),
+                        child: Text(AppLocalizations.of(context).translate('see_all')),
                       ),
                     ],
                   ),
@@ -357,7 +388,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Featured Products',
+                        AppLocalizations.of(context).featuredProducts,
                         style: Theme.of(context).textTheme.headlineMedium,
                       ),
                       TextButton(
@@ -371,7 +402,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           );
                         },
-                        child: const Text('See All'),
+                        child: Text(AppLocalizations.of(context).translate('see_all')),
                       ),
                     ],
                   ),
@@ -454,22 +485,22 @@ class _HomeScreenState extends State<HomeScreen> {
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         type: BottomNavigationBarType.fixed,
-        items: const [
+        items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            label: 'Home',
+            label: AppLocalizations.of(context).home,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.category),
-            label: 'Categories',
+            label: AppLocalizations.of(context).categories,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.shopping_bag),
-            label: 'Orders',
+            label: AppLocalizations.of(context).myOrders,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
-            label: 'Profile',
+            label: AppLocalizations.of(context).profile,
           ),
         ],
       ),
