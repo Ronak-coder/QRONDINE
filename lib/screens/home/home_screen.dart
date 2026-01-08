@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:badges/badges.dart' as badges;
+import 'package:animate_do/animate_do.dart';
 import '../../providers/product_provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/user_provider.dart';
@@ -12,6 +13,7 @@ import '../../widgets/product/product_card.dart';
 import '../../widgets/common/category_card.dart';
 import '../../widgets/common/loading_shimmer.dart';
 import '../../config/constants.dart';
+import '../../config/theme.dart';
 import '../../utils/responsive.dart';
 import '../category/category_screen.dart';
 import '../product/product_list_screen.dart';
@@ -197,77 +199,80 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
 
-                // Promotional Offer Banner
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: context.padding),
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF8B4513), Color(0xFFD2691E)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
+                // Promotional Offer Banner with Animation
+                FadeInDown(
+                  duration: const Duration(milliseconds: 600),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: context.padding),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        gradient: AppTheme.primaryGradient,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTheme.primaryColor.withOpacity(0.3),
+                            blurRadius: 12,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
                       ),
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.local_offer,
-                          color: Colors.white,
-                          size: 32,
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                AppLocalizations.of(context).specialOffers,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                AppLocalizations.of(context).translate('offer_30_percent'),
-                                style: TextStyle(
-                                  color: Colors.white.withOpacity(0.9),
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: const Text(
-                            'Shop Now',
-                            style: TextStyle(
-                              color: Color(0xFF8B4513),
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
+                      child: Row(
+                        children: [
+                          Pulse(
+                            infinite: true,
+                            duration: const Duration(seconds: 2),
+                            child: const Icon(
+                              Icons.local_offer,
+                              color: Colors.white,
+                              size: 32,
                             ),
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  AppLocalizations.of(context).specialOffers,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  AppLocalizations.of(context).translate('offer_30_percent'),
+                                  style: TextStyle(
+                                    color: Colors.white.withOpacity(0.9),
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              'Shop Now',
+                              style: TextStyle(
+                                color: AppTheme.primaryColor,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -448,22 +453,26 @@ class _HomeScreenState extends State<HomeScreen> {
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
                       final product = products[index];
-                      return ProductCard(
-                        product: product,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ProductDetailScreen(
-                                productId: product.id,
+                      return FadeInUp(
+                        duration: const Duration(milliseconds: 400),
+                        delay: Duration(milliseconds: index * 100),
+                        child: ProductCard(
+                          product: product,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ProductDetailScreen(
+                                  productId: product.id,
+                                ),
                               ),
-                            ),
-                          );
-                        },
-                        onWishlistTap: () {
-                          productProvider.toggleWishlist(product.id);
-                        },
-                        isInWishlist: productProvider.isInWishlist(product.id),
+                            );
+                          },
+                          onWishlistTap: () {
+                            productProvider.toggleWishlist(product.id);
+                          },
+                          isInWishlist: productProvider.isInWishlist(product.id),
+                        ),
                       );
                     },
                     childCount: products.length,

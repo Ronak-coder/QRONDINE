@@ -2,34 +2,71 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  // Brand Colors - Furniture Theme
-  static const Color primaryColor = Color(0xFF8B4513); // Saddle Brown
-  static const Color secondaryColor = Color(0xFFD2691E); // Chocolate
-  static const Color accentColor = Color(0xFFDEB887); // Burlywood
+  // Modern Vibrant Colors - Updated for Contemporary Look
+  static const Color primaryColor = Color(0xFF6C5CE7); // Vibrant Purple
+  static const Color secondaryColor = Color(0xFFFF6B9D); // Vibrant Pink
+  static const Color accentColor = Color(0xFF00D9FF); // Bright Cyan
+  static const Color successColor = Color(0xFF00E676); // Bright Green
+  static const Color warningColor = Color(0xFFFFB800); // Golden Yellow
   
-  // Gradient Colors
+  // Background Colors
+  static const Color lightBackground = Color(0xFFF8F9FF);
+  static const Color darkBackground = Color(0xFF1A1A2E);
+  static const Color cardLight = Colors.white;
+  static const Color cardDark = Color(0xFF16213E);
+  
+  // Modern Gradients
   static const LinearGradient primaryGradient = LinearGradient(
-    colors: [Color(0xFF8B4513), Color(0xFFA0522D)],
+    colors: [Color(0xFF6C5CE7), Color(0xFFA29BFE)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
   
   static const LinearGradient secondaryGradient = LinearGradient(
-    colors: [Color(0xFFD2691E), Color(0xFFCD853F)],
+    colors: [Color(0xFFFF6B9D), Color(0xFFFFA07A)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
+  
+  static const LinearGradient accentGradient = LinearGradient(
+    colors: [Color(0xFF00D9FF), Color(0xFF0099FF)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+  
+  static const LinearGradient shimmerGradient = LinearGradient(
+    colors: [
+      Color(0xFFE8E8E8),
+      Color(0xFFF5F5F5),
+      Color(0xFFE8E8E8),
+    ],
+    stops: [0.1, 0.5, 0.9],
+  );
+  
+  // Glassmorphism
+  static Color glassLight = Colors.white.withOpacity(0.2);
+  static Color glassDark = Colors.white.withOpacity(0.1);
+  
+  // Animation Durations
+  static const Duration fastAnimation = Duration(milliseconds: 200);
+  static const Duration normalAnimation = Duration(milliseconds: 300);
+  static const Duration slowAnimation = Duration(milliseconds: 500);
+  
+  // Animation Curves
+  static const Curve defaultCurve = Curves.easeInOut;
+  static const Curve bounceCurve = Curves.elasticOut;
+  static const Curve smoothCurve = Curves.easeOutCubic;
 
   // Light Theme
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
     primaryColor: primaryColor,
-    scaffoldBackgroundColor: const Color(0xFFF8F9FA),
+    scaffoldBackgroundColor: lightBackground,
     colorScheme: const ColorScheme.light(
       primary: primaryColor,
       secondary: secondaryColor,
-      surface: Colors.white,
+      surface: cardLight,
       error: Color(0xFFFF6B6B),
       onPrimary: Colors.white,
       onSecondary: Colors.white,
@@ -161,11 +198,11 @@ class AppTheme {
     useMaterial3: true,
     brightness: Brightness.dark,
     primaryColor: primaryColor,
-    scaffoldBackgroundColor: const Color(0xFF1A1A1A),
+    scaffoldBackgroundColor: darkBackground,
     colorScheme: const ColorScheme.dark(
       primary: primaryColor,
       secondary: secondaryColor,
-      surface: Color(0xFF2D2D2D),
+      surface: cardDark,
       error: Color(0xFFFF6B6B),
       onPrimary: Colors.white,
       onSecondary: Colors.white,
@@ -217,7 +254,7 @@ class AppTheme {
     // AppBar Theme
     appBarTheme: AppBarTheme(
       elevation: 0,
-      backgroundColor: const Color(0xFF2D2D2D),
+      backgroundColor: cardDark,
       foregroundColor: Colors.white,
       centerTitle: true,
       titleTextStyle: GoogleFonts.poppins(
@@ -233,13 +270,13 @@ class AppTheme {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
-      color: const Color(0xFF2D2D2D),
+      color: cardDark,
     ),
     
     // Input Decoration Theme
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: const Color(0xFF2D2D2D),
+      fillColor: cardDark,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide.none,
@@ -275,7 +312,7 @@ class AppTheme {
     // Bottom Navigation Bar Theme
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       elevation: 8,
-      backgroundColor: Color(0xFF2D2D2D),
+      backgroundColor: cardDark,
       selectedItemColor: primaryColor,
       unselectedItemColor: Color(0xFF636E72),
       type: BottomNavigationBarType.fixed,

@@ -191,6 +191,78 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
+  // Sign in with Google
+  Future<bool> signInWithGoogle() async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final result = await _firebaseAuthService.signInWithGoogle();
+
+      if (result['success'] == true) {
+        final firebaseUser = result['user'] as firebase_auth.User;
+        _user = _mapFirebaseUserToAppUser(firebaseUser);
+        
+        // Save to storage
+        await StorageService.saveJson(AppConstants.userDataKey, _user!.toJson());
+        
+        _isLoading = false;
+        notifyListeners();
+        return true;
+      }
+      
+      _error = result['message'] ?? 'Google sign in failed';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    } catch (e) {
+      _error = 'An error occurred during Google sign in';
+      if (kDebugMode) {
+        print('Google sign in error: $e');
+      }
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  // Sign in with Apple
+  Future<bool> signInWithApple() async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final result = await _firebaseAuthService.signInWithApple();
+
+      if (result['success'] == true) {
+        final firebaseUser = result['user'] as firebase_auth.User;
+        _user = _mapFirebaseUserToAppUser(firebaseUser);
+        
+        // Save to storage
+        await StorageService.saveJson(AppConstants.userDataKey, _user!.toJson());
+        
+        _isLoading = false;
+        notifyListeners();
+        return true;
+      }
+      
+      _error = result['message'] ?? 'Apple sign in failed';
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    } catch (e) {
+      _error = 'An error occurred during Apple sign in';
+      if (kDebugMode) {
+        print('Apple sign in error: $e');
+      }
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
   // Update user
   void updateUser(User user) {
     _user = user;

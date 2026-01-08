@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../config/theme.dart';
 
-class CustomButton extends StatelessWidget {
+class CustomButton extends StatefulWidget {
   final String text;
   final VoidCallback onPressed;
   final bool isLoading;
@@ -26,73 +26,136 @@ class CustomButton extends StatelessWidget {
   });
 
   @override
+  State<CustomButton> createState() => _CustomButtonState();
+}
+
+class _CustomButtonState extends State<CustomButton>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  bool _isPressed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: AppTheme.fastAnimation,
+      vsync: this,
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    if (isOutlined) {
-      return SizedBox(
-        width: width,
-        height: height ?? 52,
+    if (widget.isOutlined) {
+      return _buildOutlinedButton();
+    }
+    return _buildGradientButton();
+  }
+
+  Widget _buildOutlinedButton() {
+    return AnimatedScale(
+      scale: _isPressed ? 0.97 : 1.0,
+      duration: AppTheme.fastAnimation,
+      curve: AppTheme.defaultCurve,
+      child: SizedBox(
+        width: widget.width,
+        height: widget.height ?? 52,
         child: OutlinedButton(
-          onPressed: isLoading ? null : onPressed,
+          onPressed: widget.isLoading ? null : () {
+            setState(() => _isPressed = true);
+            Future.delayed(const Duration(milliseconds: 100), () {
+              if (mounted) setState(() => _isPressed = false);
+            });
+            widget.onPressed();
+          },
           style: OutlinedButton.styleFrom(
             side: BorderSide(
-              color: backgroundColor ?? AppTheme.primaryColor,
+              color: widget.backgroundColor ?? AppTheme.primaryColor,
               width: 2,
             ),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
             ),
           ),
           child: _buildChild(context),
         ),
-      );
-    }
-
-    return Container(
-      width: width,
-      height: height ?? 52,
-      decoration: BoxDecoration(
-        gradient: backgroundColor == null ? AppTheme.primaryGradient : null,
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(12),
       ),
-      child: ElevatedButton(
-        onPressed: isLoading ? null : onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.transparent,
-          shadowColor: Colors.transparent,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+    );
+  }
+
+  Widget _buildGradientButton() {
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _isPressed = true),
+      onTapUp: (_) {
+        setState(() => _isPressed = false);
+        if (!widget.isLoading) widget.onPressed();
+      },
+      onTapCancel: () => setState(() => _isPressed = false),
+      child: AnimatedScale(
+        scale: _isPressed ? 0.95 : 1.0,
+        duration: AppTheme.fastAnimation,
+        curve: AppTheme.bounceCurve,
+        child: Container(
+          width: widget.width,
+          height: widget.height ?? 56,
+          decoration: BoxDecoration(
+            gradient: widget.backgroundColor == null
+                ? AppTheme.primaryGradient
+                : null,
+            color: widget.backgroundColor,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: (widget.backgroundColor ?? AppTheme.primaryColor)
+                    .withOpacity(_isPressed ? 0.3 : 0.4),
+                blurRadius: _isPressed ? 8 : 16,
+                offset: Offset(0, _isPressed ? 2 : 8),
+              ),
+            ],
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(16),
+              onTap: widget.isLoading ? null : null, // Handled by GestureDetector
+              child: Center(child: _buildChild(context)),
+            ),
           ),
         ),
-        child: _buildChild(context),
       ),
     );
   }
 
   Widget _buildChild(BuildContext context) {
-    if (isLoading) {
+    if (widget.isLoading) {
       return const SizedBox(
-        height: 20,
-        width: 20,
+        height: 24,
+        width: 24,
         child: CircularProgressIndicator(
-          strokeWidth: 2,
+          strokeWidth: 2.5,
           valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
         ),
       );
     }
 
-    if (icon != null) {
+    if (widget.icon != null) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 20, color: textColor ?? Colors.white),
-          const SizedBox(width: 8),
+          Icon(widget.icon, size: 22, color: widget.textColor ?? Colors.white),
+          const SizedBox(width: 12),
           Text(
-            text,
+            widget.text,
             style: TextStyle(
-              color: textColor ?? Colors.white,
+              color: widget.textColor ?? Colors.white,
               fontSize: 16,
               fontWeight: FontWeight.w600,
+              letterSpacing: 0.5,
             ),
           ),
         ],
@@ -100,11 +163,12 @@ class CustomButton extends StatelessWidget {
     }
 
     return Text(
-      text,
+      widget.text,
       style: TextStyle(
-        color: textColor ?? Colors.white,
+        color: widget.textColor ?? Colors.white,
         fontSize: 16,
         fontWeight: FontWeight.w600,
+        letterSpacing: 0.5,
       ),
     );
   }

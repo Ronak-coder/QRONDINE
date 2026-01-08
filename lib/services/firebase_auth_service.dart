@@ -1,4 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 class FirebaseAuthService {
   final firebase_auth.FirebaseAuth _firebaseAuth = firebase_auth.FirebaseAuth.instance;
@@ -94,6 +96,96 @@ class FirebaseAuthService {
       return {
         'success': false,
         'message': 'An unexpected error occurred. Please try again.',
+      };
+    }
+  }
+
+  // Sign in with Google
+  Future<Map<String, dynamic>> signInWithGoogle() async {
+    try {
+      // Trigger the authentication flow
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      
+      if (googleUser == null) {
+        // User canceled the sign-in
+        return {
+          'success': false,
+          'message': 'Sign in cancelled',
+        };
+      }
+
+      // Obtain the auth details from the request
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+      // Create a new credential
+      final credential = firebase_auth.GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      // Sign in to Firebase with the Google credential
+      final userCredential = await _firebaseAuth.signInWithCredential(credential);
+
+      return {
+        'success': true,
+        'user': userCredential.user,
+        'message': 'Signed in with Google successfully',
+      };
+    } on firebase_auth.FirebaseAuthException catch (e) {
+      return {
+        'success': false,
+        'message': _getErrorMessage(e.code),
+      };
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Google sign in failed. Please try again.',
+      };
+    }
+  }
+
+  // Sign in with Apple
+  Future<Map<String, dynamic>> signInWithApple() async {
+    try {
+      // Request credential for the currently signed in Apple account
+      final appleCredential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+      );
+
+      // Create an OAuthCredential from the credential returned by Apple
+      final oauthCredential = firebase_auth.OAuthProvider("apple.com").credential(
+        idToken: appleCredential.identityToken,
+        accessToken: appleCredential.authorizationCode,
+      );
+
+      // Sign in the user with Firebase
+      final userCredential = await _firebaseAuth.signInWithCredential(oauthCredential);
+
+      // Update user profile if name is available from Apple
+      if (appleCredential.givenName != null || appleCredential.familyName != null) {
+        final displayName = '${appleCredential.givenName ?? ''} ${appleCredential.familyName ?? ''}'.trim();
+        if (displayName.isNotEmpty) {
+          await userCredential.user?.updateDisplayName(displayName);
+        }
+      }
+
+      return {
+        'success': true,
+        'user': userCredential.user,
+        'message': 'Signed in with Apple successfully',
+      };
+    } on firebase_auth.FirebaseAuthException catch (e) {
+      return {
+        'success': false,
+        'message': _getErrorMessage(e.code),
+      };
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Apple sign in failed. Please try again.',
       };
     }
   }
